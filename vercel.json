@@ -1,18 +1,28 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
-        }
-    ],
     "routes": [
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/assets/(.*)",
+            "headers": {
+                "content-type": "application/javascript"
+            }
+        },
         {
             "src": "/(.*)",
             "dest": "/index.html"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/assets/(.*)",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/javascript"
+                }
+            ]
         }
     ]
 }
