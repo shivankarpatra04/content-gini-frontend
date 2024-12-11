@@ -4,12 +4,6 @@
             "handle": "filesystem"
         },
         {
-            "src": "/assets/(.*)",
-            "headers": {
-                "content-type": "application/javascript"
-            }
-        },
-        {
             "src": "/(.*)",
             "dest": "/index.html"
         }
