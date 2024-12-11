@@ -1,66 +1,137 @@
 // src/services/authService.js
 import axios from 'axios';
 
+// Create axios instance with base configuration
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    withCredentials: true // Important for handling cookies if you're using them
 });
 
-// Add token to requests if it exists
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+// Add request interceptor for authentication
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
-    return config;
-});
+);
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Handle unauthorized access
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            // Optionally redirect to login
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 export const authService = {
-    // Login endpoint
     login: async ({ email, password }) => {
         try {
-            const { data } = await api.post('/auth/login', { email, password });
-            return data;
+            const response = await api.post('/auth/login', { email, password });
+            if (response.data?.token) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('userData', JSON.stringify(response.data.user));
+            }
+            return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Login failed');
+            const message = error.response?.data?.message || 'Login failed';
+            console.error('Login error:', error);
+            throw new Error(message);
         }
     },
 
-    // Register endpoint
     register: async ({ name, email, password }) => {
         try {
-            const { data } = await api.post('/auth/register', { name, email, password });
-            return data;
+            const response = await api.post('/auth/register', {
+                name,
+                email,
+                password
+            });
+            return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Registration failed');
+            const message = error.response?.data?.message || 'Registration failed';
+            console.error('Registration error:', error);
+            throw new Error(message);
         }
     },
 
-    // Get current user
     getCurrentUser: async () => {
-        const userData = localStorage.getItem('userData');
-        return userData ? JSON.parse(userData) : null;
+        try {
+            const userData = localStorage.getItem('userData');
+            if (!userData) return null;
+
+            // Optionally verify token with backend
+            const token = localStorage.getItem('token');
+            if (!token) {
+                localStorage.removeItem('userData');
+                return null;
+            }
+
+            // You can add an API call here to verify the token
+            return JSON.parse(userData);
+        } catch (error) {
+            console.error('Get current user error:', error);
+            localStorage.removeItem('userData');
+            localStorage.removeItem('token');
+            return null;
+        }
     },
 
-    // Forgot password endpoint
+    logout: async () => {
+        try {
+            // Optional: Call backend to invalidate token
+            await api.post('/auth/logout');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+        }
+    },
+
     forgotPassword: async (email) => {
         try {
-            const { data } = await api.post('/auth/forgot-password', { email });
-            return data;
+            const response = await api.post('/auth/forgot-password', { email });
+            return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to send reset email');
+            const message = error.response?.data?.message || 'Failed to send reset email';
+            console.error('Forgot password error:', error);
+            throw new Error(message);
         }
     },
 
-    // Reset password endpoint - This needs to be modified
     resetPassword: async ({ token, newPassword }) => {
         try {
-            // Changed the endpoint to include token in URL
-            const { data } = await api.post(`/auth/reset-password/${token}`, {
-                password: newPassword // Changed to match backend expectation
+            const response = await api.post(`/auth/reset-password/${token}`, {
+                password: newPassword
             });
-            return data;
+            return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to reset password');
+            const message = error.response?.data?.message || 'Failed to reset password';
+            console.error('Reset password error:', error);
+            throw new Error(message);
         }
     },
+
+    // Add method to check if user is authenticated
+    isAuthenticated: () => {
+        return !!localStorage.getItem('token');
+    }
 };
+
+export default authService;
