@@ -36,53 +36,44 @@ const Auth = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
         try {
             if (mode === 'login') {
-                try {
-                    await login({
-                        email: formData.email,
-                        password: formData.password
-                    });
-                    // Navigation is handled in AuthContext
-                } catch (error) {
-                    if (error.response?.status === 401) {
-                        toast.error('Invalid email or password');
-                    } else if (error.response?.data?.message) {
-                        toast.error(error.response.data.message);
-                    } else {
-                        toast.error('Login failed. Please try again.');
-                    }
-                    // Remove the throw error here
+                const success = await login({
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                if (!success) {
+                    setLoading(false);
+                    return; // Stop here if login failed
                 }
+                // Navigation is handled in login function
             } else if (mode === 'register') {
                 if (formData.password !== formData.confirmPassword) {
                     toast.error('Passwords do not match');
+                    setLoading(false);
                     return;
                 }
-                try {
-                    await register({
-                        name: formData.name,
-                        email: formData.email,
-                        password: formData.password
-                    });
-                } catch (error) {
-                    if (error.response?.status === 409) {
-                        toast.error('Email already exists');
-                    } else if (error.response?.data?.message) {
-                        toast.error(error.response.data.message);
-                    } else {
-                        toast.error('Registration failed. Please try again.');
-                    }
-                    // Remove the throw error here
+
+                const success = await register({
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                if (!success) {
+                    setLoading(false);
+                    return;
                 }
             }
         } catch (error) {
             console.error('Auth error:', error);
+            toast.error('An unexpected error occurred');
         } finally {
             setLoading(false);
         }
     };
-
     return (
         <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md">

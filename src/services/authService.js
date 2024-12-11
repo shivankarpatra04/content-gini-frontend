@@ -10,10 +10,10 @@ const api = axios.create({
     withCredentials: true // Important for handling cookies if you're using them
 });
 
-// Request interceptor for authentication
+// Request interceptor
 api.interceptors.request.use(
     (config) => {
-        // Don't add token for login/register requests
+        // Don't add token for auth requests
         if (!config.url.includes('/auth/')) {
             const token = localStorage.getItem('token');
             if (token) {
@@ -23,63 +23,35 @@ api.interceptors.request.use(
         return config;
     },
     (error) => {
-        console.error('Request error:', error);
+        console.error('Request interceptor error:', error);
         return Promise.reject(error);
     }
 );
 
-// Response interceptor for error handling
+// Response interceptor
 api.interceptors.response.use(
-    (response) => {
-        // Handle successful responses
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Get the original request configuration
-        const originalRequest = error.config;
+        const isAuthRequest = error.config.url.includes('/auth/');
 
-        // Check if this is an authentication request (login/register)
-        const isAuthRequest = originalRequest.url.includes('/auth/');
-
-        // Handle different error scenarios
-        if (error.response) {
-            switch (error.response.status) {
-                case 401:
-                    // Only handle unauthorized errors for non-auth requests
-                    if (!isAuthRequest) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('userData');
-                        window.location.href = '/auth?mode=login';
-                    }
-                    break;
-
-                case 403:
-                    // Handle forbidden errors
-                    console.error('Forbidden access:', error);
-                    break;
-
-                case 404:
-                    // Handle not found errors
-                    console.error('Resource not found:', error);
-                    break;
-
-                case 500:
-                    // Handle server errors
-                    console.error('Server error:', error);
-                    break;
-
-                default:
-                    // Handle other errors
-                    console.error('API error:', error);
-                    break;
+        // Handle 401 errors
+        if (error.response?.status === 401) {
+            if (!isAuthRequest) {
+                // Only clear auth and redirect for non-auth requests
+                localStorage.removeItem('token');
+                localStorage.removeItem('userData');
+                window.location.href = '/auth?mode=login';
             }
-        } else if (error.request) {
-            // Handle network errors
-            console.error('Network error:', error);
-        } else {
-            // Handle other errors
-            console.error('Error:', error);
+            // For auth requests, just reject the promise
+            return Promise.reject(error);
         }
+
+        // Handle other errors
+        console.error('API Error:', {
+            status: error.response?.status,
+            message: error.response?.data?.message || error.message,
+            url: error.config.url
+        });
 
         return Promise.reject(error);
     }
@@ -88,16 +60,16 @@ api.interceptors.response.use(
 export const authService = {
     login: async ({ email, password }) => {
         try {
-            const response = await api.post('/auth/login', { email, password });
-            if (response.data?.token) {
-                localStorage.setItem('token', response.data.token);
-                localStorage.setItem('userData', JSON.stringify(response.data.user));
-            }
+            const response = await api.post('/auth/login', {
+                email,
+                password
+            });
             return response.data;
         } catch (error) {
-            const message = error.response?.data?.message || 'Login failed';
-            console.error('Login error:', error);
-            throw new Error(message);
+            if (error.response?.status === 401) {
+                throw new Error('Invalid email or password');
+            }
+            throw new Error(error.response?.data?.message || 'Login failed');
         }
     },
 

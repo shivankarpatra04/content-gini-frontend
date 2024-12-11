@@ -36,20 +36,27 @@ export const AuthProvider = ({ children }) => {
     const login = async (credentials) => {
         try {
             const data = await authService.login(credentials);
+            if (!data || !data.token) {
+                throw new Error('Invalid response from server');
+            }
+
             const userData = {
                 id: data.userId,
                 email: credentials.email,
             };
+
             setUser(userData);
             localStorage.setItem('token', data.token);
             localStorage.setItem('userData', JSON.stringify(userData));
             toast.success('Login successful!');
             navigate('/blog-generator');
         } catch (error) {
-            // Don't throw the error again, let it be handled by the calling function
+            // Don't rethrow, just handle it here
             console.error('Login error:', error);
-            throw error;
+            toast.error(error.message);
+            return false; // Indicate login failure
         }
+        return true; // Indicate login success
     };
 
     const register = async (userData) => {
