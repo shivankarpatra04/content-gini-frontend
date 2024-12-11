@@ -16,6 +16,7 @@ api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
+
 const useBlog = () => {
     const [loading, setLoading] = useState(false);
     const [analysisResult, setAnalysisResult] = useState(null);
@@ -155,19 +156,77 @@ const useBlog = () => {
         };
     };
 
+    const generateContent = async (formData) => {
+        setLoading(true);
+        setProgress(0);
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await api.post('/blog/generate', formData);
+            const { jobId } = response.data;
+
+            await startPolling(jobId, (data) => {
+                setGeneratedContent(data);
+                setLoading(false);
+                toast.success('Content generated successfully!');
+            });
+
+        } catch (error) {
+            setLoading(false);
+            setProgress(0);
+            if (error.response?.status === 401) {
+                toast.error('Please login to generate content');
+            } else {
+                toast.error(error.response?.data?.error || 'Failed to generate content');
+            }
+            throw error;
+        }
+    };
+
+    const clearGeneratedContent = () => {
+        setGeneratedContent(null);
+        setProgress(0);
+    };
+
+    const formatGeneratedContent = (content) => {
+        if (!content) return null;
+
+        return {
+            content: content.content || '',
+            metadata: {
+                readTime: content.estimated_read_time || '0 min',
+                wordCount: content.word_count || 0,
+                metaDescription: content.meta_description || '',
+                title: content.title || '',
+                keywords: content.keywords || [],
+                tone: content.tone || 'neutral'
+            }
+        };
+    };
+
     return {
+        // Analysis-related
         loading,
         progress,
         analysisResult,
         analyzeContent,
         clearAnalysis,
         cleanup,
-        // Analysis data getters
         getAnalysisData,
-        // Helper formatters
         formatQualityMetrics,
         formatKeywords,
         formatTopics,
+
+        // Generation-related
+        generatedContent: formatGeneratedContent(generatedContent),
+        generateContent,
+        clearGeneratedContent,
+        readTime: generatedContent?.estimated_read_time || '0 min',
+        metaDescription: generatedContent?.meta_description || '',
+        word_count: generatedContent?.word_count || 0,
     };
 };
 
