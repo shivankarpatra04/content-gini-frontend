@@ -14,7 +14,13 @@ const BlogAnalysis = () => {
         formatQualityMetrics,
         formatKeywords,
         clearAnalysis,
-        cleanup
+        cleanup,
+        qualityScore,
+        scoreInterpretation,
+        sentiment,
+        sentimentConfidence,
+        topics,
+        formatTopics
     } = useBlog();
 
     useEffect(() => {
@@ -115,6 +121,15 @@ const BlogAnalysis = () => {
         setBlogText('');
         clearAnalysis();
         toast.success('Form has been reset!');
+    };
+    // Add to your existing variants
+    const cardVariants = {
+        hidden: { opacity: 0, y: 10 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.4 }
+        }
     };
 
     const ProcessingOverlay = () => (
@@ -289,6 +304,56 @@ const BlogAnalysis = () => {
                                 ))}
                             </motion.div>
 
+                            {/* Overall Analysis Section */}
+                            <motion.div className="mb-8">
+                                <h2 className="text-xl font-semibold mb-4">Overall Analysis</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Quality Score Card */}
+                                    <motion.div
+                                        className="bg-gray-50 p-4 rounded-lg"
+                                        variants={cardVariants}
+                                        whileHover={{ scale: 1.02 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <h3 className="text-sm font-medium text-gray-500">Quality Score</h3>
+                                        <p className="mt-1 text-2xl font-semibold">{qualityScore}/100</p>
+                                        <p className="text-sm text-gray-600 mt-2">{scoreInterpretation}</p>
+                                    </motion.div>
+
+                                    {/* Sentiment Analysis Card */}
+                                    <motion.div
+                                        className="bg-gray-50 p-4 rounded-lg"
+                                        variants={cardVariants}
+                                        whileHover={{ scale: 1.02 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <h3 className="text-sm font-medium text-gray-500">Content Sentiment</h3>
+                                        <p className="mt-1 text-xl font-semibold">{sentiment}</p>
+                                        <p className="text-sm text-gray-600 mt-2">
+                                            Confidence: {(sentimentConfidence * 100).toFixed(1)}%
+                                        </p>
+                                    </motion.div>
+
+                                    {/* Topics Card */}
+                                    <motion.div
+                                        className="bg-gray-50 p-4 rounded-lg"
+                                        variants={cardVariants}
+                                        whileHover={{ scale: 1.02 }}
+                                        transition={{ duration: 0.2 }}
+                                    >
+                                        <h3 className="text-sm font-medium text-gray-500">Main Topics</h3>
+                                        <div className="mt-2 space-y-2">
+                                            {formatTopics(topics).map((topic, index) => (
+                                                <div key={index} className="flex justify-between items-center">
+                                                    <span className="text-gray-700 capitalize">{topic.topic}</span>
+                                                    <span className="text-sm text-gray-500">{topic.confidence}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+
                             {/* Content Scores */}
                             <motion.div variants={containerVariants} className="mb-8">
                                 <h2 className="text-xl font-semibold mb-4">Content Scores</h2>
@@ -365,5 +430,4 @@ const BlogAnalysis = () => {
         </div>
     );
 };
-
 export default BlogAnalysis;

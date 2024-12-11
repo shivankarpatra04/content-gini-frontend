@@ -1,4 +1,3 @@
-// src/hooks/useBlog.js
 import { useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -167,6 +166,23 @@ const useBlog = () => {
         }));
     };
 
+    const getScoreInterpretation = (score) => {
+        if (!score) return '';
+        if (score >= 90) return 'Excellent - Professional quality content';
+        if (score >= 80) return 'Very Good - Minor improvements possible';
+        if (score >= 70) return 'Good - Some areas need attention';
+        if (score >= 60) return 'Fair - Significant improvements needed';
+        return 'Needs Improvement - Major revision required';
+    };
+
+    const formatTopics = (topics) => {
+        if (!topics) return [];
+        return topics.map(t => ({
+            topic: t.topic,
+            confidence: (t.confidence * 100).toFixed(1) + '%'
+        }));
+    };
+
     return {
         loading,
         progress,
@@ -178,8 +194,13 @@ const useBlog = () => {
         clearGeneratedContent,
         formatQualityMetrics,
         formatKeywords,
+        formatTopics,
         cleanup,
         qualityScore: analysisResult?.quality_analysis?.overall_score,
+        scoreInterpretation: getScoreInterpretation(analysisResult?.quality_analysis?.overall_score),
+        sentiment: analysisResult?.sentiment_analysis?.sentiment,
+        sentimentConfidence: analysisResult?.sentiment_analysis?.confidence,
+        topics: analysisResult?.topic_analysis?.topics || [],
         recommendations: analysisResult?.quality_analysis?.recommendations || [],
         readTime: generatedContent?.estimated_read_time,
         metaDescription: generatedContent?.meta_description,
