@@ -40,15 +40,14 @@ export const AuthProvider = ({ children }) => {
                 id: data.userId,
                 email: credentials.email,
             };
-
             setUser(userData);
             localStorage.setItem('token', data.token);
             localStorage.setItem('userData', JSON.stringify(userData));
-
             toast.success('Login successful!');
             navigate('/blog-generator');
         } catch (error) {
-            toast.error(error.message || 'Login failed');
+            // Don't throw the error again, let it be handled by the calling function
+            console.error('Login error:', error);
             throw error;
         }
     };

@@ -36,7 +36,6 @@ const Auth = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             if (mode === 'login') {
                 try {
@@ -53,7 +52,7 @@ const Auth = () => {
                     } else {
                         toast.error('Login failed. Please try again.');
                     }
-                    throw error;
+                    // Remove the throw error here
                 }
             } else if (mode === 'register') {
                 if (formData.password !== formData.confirmPassword) {
@@ -74,12 +73,11 @@ const Auth = () => {
                     } else {
                         toast.error('Registration failed. Please try again.');
                     }
-                    throw error;
+                    // Remove the throw error here
                 }
             }
         } catch (error) {
             console.error('Auth error:', error);
-            // Don't show generic error since we've already shown specific ones
         } finally {
             setLoading(false);
         }

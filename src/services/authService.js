@@ -28,11 +28,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            // Handle unauthorized access
+        // Check if this is a login attempt
+        const isLoginRequest = error.config.url.includes('/login');
+
+        if (error.response?.status === 401 && !isLoginRequest) {
+            // Only handle 401s for non-login requests
             localStorage.removeItem('token');
             localStorage.removeItem('userData');
-            // Optionally redirect to login
             window.location.href = '/login';
         }
         return Promise.reject(error);
