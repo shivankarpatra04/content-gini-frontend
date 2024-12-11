@@ -10,33 +10,77 @@ const api = axios.create({
     withCredentials: true // Important for handling cookies if you're using them
 });
 
-// Add request interceptor for authentication
+// Request interceptor for authentication
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        // Don't add token for login/register requests
+        if (!config.url.includes('/auth/')) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
         }
         return config;
     },
     (error) => {
+        console.error('Request error:', error);
         return Promise.reject(error);
     }
 );
 
-// Add response interceptor for error handling
+// Response interceptor for error handling
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Handle successful responses
+        return response;
+    },
     (error) => {
-        // Check if this is a login attempt
-        const isLoginRequest = error.config.url.includes('/login');
+        // Get the original request configuration
+        const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !isLoginRequest) {
-            // Only handle 401s for non-login requests
-            localStorage.removeItem('token');
-            localStorage.removeItem('userData');
-            window.location.href = '/login';
+        // Check if this is an authentication request (login/register)
+        const isAuthRequest = originalRequest.url.includes('/auth/');
+
+        // Handle different error scenarios
+        if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    // Only handle unauthorized errors for non-auth requests
+                    if (!isAuthRequest) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('userData');
+                        window.location.href = '/auth?mode=login';
+                    }
+                    break;
+
+                case 403:
+                    // Handle forbidden errors
+                    console.error('Forbidden access:', error);
+                    break;
+
+                case 404:
+                    // Handle not found errors
+                    console.error('Resource not found:', error);
+                    break;
+
+                case 500:
+                    // Handle server errors
+                    console.error('Server error:', error);
+                    break;
+
+                default:
+                    // Handle other errors
+                    console.error('API error:', error);
+                    break;
+            }
+        } else if (error.request) {
+            // Handle network errors
+            console.error('Network error:', error);
+        } else {
+            // Handle other errors
+            console.error('Error:', error);
         }
+
         return Promise.reject(error);
     }
 );
