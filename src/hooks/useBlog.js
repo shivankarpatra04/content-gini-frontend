@@ -26,14 +26,14 @@ const useBlog = () => {
     const pollJobStatus = useCallback(async (jobId, onComplete) => {
         try {
             const response = await api.get(`/blog/status/${jobId}`);
-            const { status, data, error } = response.data;
+            const { success, status, data, error } = response.data;
 
-            if (status === 'completed') {
+            if (status === 'completed' && success) {
                 setProgress(100);
                 clearInterval(pollingRef.current);
                 onComplete(data);
                 return true;
-            } else if (status === 'failed') {
+            } else if (!success || error) {
                 clearInterval(pollingRef.current);
                 throw new Error(error || 'Processing failed');
             } else {
@@ -97,41 +97,6 @@ const useBlog = () => {
         }
     };
 
-    const generateContent = async (formData) => {
-        setLoading(true);
-        setProgress(0);
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('Authentication required');
-            }
-
-            const { title, keywords, tone } = formData;
-            const response = await api.post('/blog/generate', {
-                title,
-                keywords,
-                tone
-            });
-            const { jobId } = response.data;
-
-            await startPolling(jobId, (data) => {
-                setGeneratedContent(data);
-                setLoading(false);
-                toast.success('Content generated successfully!');
-            });
-
-        } catch (error) {
-            setLoading(false);
-            setProgress(0);
-            if (error.response?.status === 401) {
-                toast.error('Please login to generate content');
-            } else {
-                toast.error(error.response?.data?.error || 'Failed to generate content');
-            }
-            throw error;
-        }
-    };
-
     const cleanup = useCallback(() => {
         if (pollingRef.current) {
             clearInterval(pollingRef.current);
@@ -140,11 +105,6 @@ const useBlog = () => {
 
     const clearAnalysis = () => {
         setAnalysisResult(null);
-        setProgress(0);
-    };
-
-    const clearGeneratedContent = () => {
-        setGeneratedContent(null);
         setProgress(0);
     };
 
@@ -166,15 +126,6 @@ const useBlog = () => {
         }));
     };
 
-    const getScoreInterpretation = (score) => {
-        if (!score) return '';
-        if (score >= 90) return 'Excellent - Professional quality content';
-        if (score >= 80) return 'Very Good - Minor improvements possible';
-        if (score >= 70) return 'Good - Some areas need attention';
-        if (score >= 60) return 'Fair - Significant improvements needed';
-        return 'Needs Improvement - Major revision required';
-    };
-
     const formatTopics = (topics) => {
         if (!topics) return [];
         return topics.map(t => ({
@@ -183,29 +134,40 @@ const useBlog = () => {
         }));
     };
 
+    // Get formatted analysis data
+    const getAnalysisData = () => {
+        if (!analysisResult) return null;
+
+        return {
+            qualityAnalysis: {
+                scores: analysisResult.quality_analysis.scores,
+                metrics: formatQualityMetrics(analysisResult.quality_analysis.metrics),
+                overallScore: (analysisResult.quality_analysis.overall_score * 100).toFixed(1),
+                interpretation: analysisResult.quality_analysis.interpretation,
+                recommendations: analysisResult.quality_analysis.recommendations
+            },
+            keywords: formatKeywords(analysisResult.keywords),
+            sentiment: {
+                type: analysisResult.sentiment.sentiment,
+                confidence: (analysisResult.sentiment.confidence * 100).toFixed(1)
+            },
+            topics: formatTopics(analysisResult.topics)
+        };
+    };
+
     return {
         loading,
         progress,
         analysisResult,
-        generatedContent,
         analyzeContent,
-        generateContent,
         clearAnalysis,
-        clearGeneratedContent,
+        cleanup,
+        // Analysis data getters
+        getAnalysisData,
+        // Helper formatters
         formatQualityMetrics,
         formatKeywords,
         formatTopics,
-        cleanup,
-        qualityScore: analysisResult?.quality_analysis?.overall_score,
-        scoreInterpretation: getScoreInterpretation(analysisResult?.quality_analysis?.overall_score),
-        sentiment: analysisResult?.sentiment_analysis?.sentiment,
-        sentimentConfidence: analysisResult?.sentiment_analysis?.confidence,
-        topics: analysisResult?.topic_analysis?.topics || [],
-        recommendations: analysisResult?.quality_analysis?.recommendations || [],
-        readTime: generatedContent?.estimated_read_time,
-        metaDescription: generatedContent?.meta_description,
-        error: generatedContent?.error,
-        word_count: generatedContent?.word_count,
     };
 };
 

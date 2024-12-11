@@ -9,19 +9,16 @@ const BlogAnalysis = () => {
     const {
         loading,
         progress,
-        analysisResult,
         analyzeContent,
-        formatQualityMetrics,
-        formatKeywords,
+        getAnalysisData,
         clearAnalysis,
         cleanup,
-        qualityScore,
-        scoreInterpretation,
-        sentiment,
-        sentimentConfidence,
-        topics,
+        formatQualityMetrics,
+        formatKeywords,
         formatTopics
     } = useBlog();
+
+    const analysisData = getAnalysisData();
 
     useEffect(() => {
         return () => cleanup();
@@ -277,7 +274,7 @@ const BlogAnalysis = () => {
             </AnimatePresence>
 
             <AnimatePresence>
-                {analysisResult && (
+                {analysisData && (
                     <motion.div
                         className="mt-6 bg-white rounded-xl shadow-lg overflow-hidden"
                         initial="hidden"
@@ -288,7 +285,7 @@ const BlogAnalysis = () => {
                         <div className="p-6 sm:p-8">
                             {/* Basic Metrics */}
                             <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                                {Object.entries(formatQualityMetrics(analysisResult.quality_analysis.metrics)).map(([key, value], index) => (
+                                {Object.entries(analysisData.qualityAnalysis.metrics).map(([key, value], index) => (
                                     <motion.div
                                         key={key}
                                         className="bg-gray-50 p-4 rounded-lg"
@@ -316,8 +313,8 @@ const BlogAnalysis = () => {
                                         transition={{ duration: 0.2 }}
                                     >
                                         <h3 className="text-sm font-medium text-gray-500">Quality Score</h3>
-                                        <p className="mt-1 text-2xl font-semibold">{qualityScore}/100</p>
-                                        <p className="text-sm text-gray-600 mt-2">{scoreInterpretation}</p>
+                                        <p className="mt-1 text-2xl font-semibold">{analysisData.qualityAnalysis.overallScore}%</p>
+                                        <p className="text-sm text-gray-600 mt-2">{analysisData.qualityAnalysis.interpretation}</p>
                                     </motion.div>
 
                                     {/* Sentiment Analysis Card */}
@@ -328,9 +325,9 @@ const BlogAnalysis = () => {
                                         transition={{ duration: 0.2 }}
                                     >
                                         <h3 className="text-sm font-medium text-gray-500">Content Sentiment</h3>
-                                        <p className="mt-1 text-xl font-semibold">{sentiment}</p>
+                                        <p className="mt-1 text-xl font-semibold">{analysisData.sentiment.type}</p>
                                         <p className="text-sm text-gray-600 mt-2">
-                                            Confidence: {(sentimentConfidence * 100).toFixed(1)}%
+                                            Confidence: {analysisData.sentiment.confidence}%
                                         </p>
                                     </motion.div>
 
@@ -343,7 +340,7 @@ const BlogAnalysis = () => {
                                     >
                                         <h3 className="text-sm font-medium text-gray-500">Main Topics</h3>
                                         <div className="mt-2 space-y-2">
-                                            {formatTopics(topics).map((topic, index) => (
+                                            {analysisData.topics.map((topic, index) => (
                                                 <div key={index} className="flex justify-between items-center">
                                                     <span className="text-gray-700 capitalize">{topic.topic}</span>
                                                     <span className="text-sm text-gray-500">{topic.confidence}</span>
@@ -358,7 +355,7 @@ const BlogAnalysis = () => {
                             <motion.div variants={containerVariants} className="mb-8">
                                 <h2 className="text-xl font-semibold mb-4">Content Scores</h2>
                                 <div className="space-y-4">
-                                    {Object.entries(analysisResult.quality_analysis.scores).map(([key, value], index) => (
+                                    {Object.entries(analysisData.qualityAnalysis.scores).map(([key, value], index) => (
                                         <motion.div
                                             key={key}
                                             className="space-y-2"
@@ -386,7 +383,7 @@ const BlogAnalysis = () => {
                             <motion.div variants={containerVariants} className="mb-8">
                                 <h2 className="text-xl font-semibold mb-4">Key Terms</h2>
                                 <div className="flex flex-wrap gap-3">
-                                    {formatKeywords(analysisResult.keywords).map((keyword, index) => (
+                                    {analysisData.keywords.map((keyword, index) => (
                                         <motion.div
                                             key={index}
                                             className="bg-gray-50 p-3 rounded-lg border border-gray-100 shadow-sm flex-grow sm:flex-grow-0"
@@ -409,7 +406,7 @@ const BlogAnalysis = () => {
                             <motion.div variants={containerVariants}>
                                 <h2 className="text-xl font-semibold mb-4">Recommendations</h2>
                                 <ul className="space-y-3">
-                                    {analysisResult.quality_analysis.recommendations.map((recommendation, index) => (
+                                    {analysisData.qualityAnalysis.recommendations.map((recommendation, index) => (
                                         <motion.li
                                             key={index}
                                             className="flex items-start bg-gray-50 p-4 rounded-lg"
