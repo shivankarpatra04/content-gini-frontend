@@ -43,9 +43,10 @@ const Login = () => {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
             />
-            <Button type="submit" loading={loading}>
+            <Button type="submit" loading={loading} loadingText="Signing in...">
                 Login
             </Button>
+
         </form>
     );
 };
