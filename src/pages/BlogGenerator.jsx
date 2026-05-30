@@ -4,7 +4,7 @@ import useBlog from '../hooks/useBlog';
 import toast from 'react-hot-toast';
 import { marked } from 'marked';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCw, Edit3, Sparkles, Loader2 } from 'lucide-react';
+import { RotateCw, Edit3, Sparkles, Loader2, Copy, Check } from 'lucide-react';
 
 const BlogGenerator = () => {
     const {
@@ -24,6 +24,37 @@ const BlogGenerator = () => {
         keywords: '',
         tone: 'informative',
     });
+
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        const text = generatedContent?.content || '';
+        if (!text) return;
+
+        try {
+            // Rich copy: paste keeps formatting in Docs/Word/CMS editors,
+            // with a plain-text (markdown) fallback for everything else.
+            const html = marked(text);
+            if (navigator.clipboard && window.ClipboardItem) {
+                await navigator.clipboard.write([
+                    new window.ClipboardItem({
+                        'text/html': new Blob([html], { type: 'text/html' }),
+                        'text/plain': new Blob([text], { type: 'text/plain' }),
+                    }),
+                ]);
+            } else if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                throw new Error('Clipboard API unavailable');
+            }
+            setCopied(true);
+            toast.success('Content copied to clipboard!');
+            setTimeout(() => setCopied(false), 2000);
+        } catch (error) {
+            console.error('Copy failed:', error);
+            toast.error('Could not copy content');
+        }
+    };
 
     useEffect(() => {
         return () => cleanup();
@@ -343,12 +374,36 @@ const BlogGenerator = () => {
                         variants={containerVariants}
                     >
                         <div className="p-6 sm:p-8">
-                            <motion.h2
-                                className="text-xl font-semibold mb-4"
-                                variants={typingAnimation}
-                            >
-                                Generated Content
-                            </motion.h2>
+                            <div className="flex items-center justify-between mb-4 gap-3">
+                                <motion.h2
+                                    className="text-xl font-semibold"
+                                    variants={typingAnimation}
+                                >
+                                    Generated Content
+                                </motion.h2>
+                                <motion.button
+                                    type="button"
+                                    onClick={handleCopy}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
+                                        ${copied
+                                            ? 'bg-green-50 text-green-700 border border-green-200'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
+                                >
+                                    {copied ? (
+                                        <>
+                                            <Check className="w-4 h-4" />
+                                            <span>Copied!</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="w-4 h-4" />
+                                            <span>Copy</span>
+                                        </>
+                                    )}
+                                </motion.button>
+                            </div>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                                 {readTime && (
@@ -371,25 +426,22 @@ const BlogGenerator = () => {
                                 )}
                             </div>
 
-                            <motion.div
-                                className="prose max-w-none"
-                                variants={typingAnimation}
-                            >
+                            <motion.div variants={typingAnimation}>
                                 <div className="mb-6">
-                                    <h3 className="text-lg font-medium mb-2">Content:</h3>
                                     <div
-                                        className="whitespace-pre-wrap text-gray-700"
+                                        className="blog-content"
                                         dangerouslySetInnerHTML={renderMarkdown(generatedContent.content)}
                                     />
                                 </div>
 
                                 {metaDescription && (
                                     <motion.div
+                                        className="mt-8 rounded-lg border border-blue-100 bg-blue-50/60 p-4"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.5 }}
                                     >
-                                        <h3 className="text-lg font-medium mb-2">Meta Description:</h3>
+                                        <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700 mb-1">Meta Description</h3>
                                         <p className="text-gray-700">{metaDescription}</p>
                                     </motion.div>
                                 )}
