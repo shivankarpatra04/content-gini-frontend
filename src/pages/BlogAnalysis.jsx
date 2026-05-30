@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import useBlog from '../hooks/useBlog';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,6 +20,16 @@ const BlogAnalysis = () => {
     } = useBlog();
 
     const analysisData = getAnalysisData();
+    const location = useLocation();
+
+    // Auto-fill the textarea when arriving from the Blog Generator with content.
+    useEffect(() => {
+        const passedContent = location.state?.content;
+        if (passedContent) {
+            setBlogText(passedContent);
+            toast.success('Generated blog loaded for analysis');
+        }
+    }, [location.state]);
 
     useEffect(() => {
         return () => cleanup();

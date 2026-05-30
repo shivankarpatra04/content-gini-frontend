@@ -1,10 +1,11 @@
 // src/pages/BlogGenerator.jsx
 import React, { useState, useEffect } from 'react';  // Added useEffect
+import { useNavigate } from 'react-router-dom';
 import useBlog from '../hooks/useBlog';
 import toast from 'react-hot-toast';
 import { marked } from 'marked';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCw, Edit3, Sparkles, Loader2, Copy, Check } from 'lucide-react';
+import { RotateCw, Edit3, Sparkles, Loader2, Copy, Check, LineChart } from 'lucide-react';
 
 const BlogGenerator = () => {
     const {
@@ -26,6 +27,17 @@ const BlogGenerator = () => {
     });
 
     const [copied, setCopied] = useState(false);
+    const navigate = useNavigate();
+
+    const handleAnalyze = () => {
+        const text = generatedContent?.content || '';
+        if (!text) {
+            toast.error('No generated content to analyze');
+            return;
+        }
+        // Pass the generated blog to the analysis page so it auto-fills the textarea.
+        navigate('/blog-analysis', { state: { content: text } });
+    };
 
     const handleCopy = async () => {
         const text = generatedContent?.content || '';
@@ -381,28 +393,41 @@ const BlogGenerator = () => {
                                 >
                                     Generated Content
                                 </motion.h2>
-                                <motion.button
-                                    type="button"
-                                    onClick={handleCopy}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
-                                        ${copied
-                                            ? 'bg-green-50 text-green-700 border border-green-200'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                                    whileHover={{ scale: 1.03 }}
-                                    whileTap={{ scale: 0.97 }}
-                                >
-                                    {copied ? (
-                                        <>
-                                            <Check className="w-4 h-4" />
-                                            <span>Copied!</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Copy className="w-4 h-4" />
-                                            <span>Copy</span>
-                                        </>
-                                    )}
-                                </motion.button>
+                                <div className="flex items-center gap-2">
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleAnalyze}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
+                                            bg-purple-600 text-white hover:bg-purple-700"
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
+                                    >
+                                        <LineChart className="w-4 h-4" />
+                                        <span>Analyze this Blog</span>
+                                    </motion.button>
+                                    <motion.button
+                                        type="button"
+                                        onClick={handleCopy}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
+                                            ${copied
+                                                ? 'bg-green-50 text-green-700 border border-green-200'
+                                                : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
+                                    >
+                                        {copied ? (
+                                            <>
+                                                <Check className="w-4 h-4" />
+                                                <span>Copied!</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-4 h-4" />
+                                                <span>Copy</span>
+                                            </>
+                                        )}
+                                    </motion.button>
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
