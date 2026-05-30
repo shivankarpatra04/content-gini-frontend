@@ -77,12 +77,17 @@ const Auth = () => {
         }
     };
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md">
-                <div>
-                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                        {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
+        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-brand-50/60 to-slate-50">
+            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-card border border-slate-100">
+                <div className="text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                        {mode === 'login' ? 'Welcome back' : 'Create your account'}
                     </h2>
+                    <p className="mt-2 text-sm text-slate-500">
+                        {mode === 'login'
+                            ? 'Sign in to continue creating with Content Gini.'
+                            : 'Start generating and analyzing content in seconds.'}
+                    </p>
                 </div>
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -93,7 +98,7 @@ const Auth = () => {
                     )}
                     {mode === 'register' && (
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="name" className="block text-sm font-medium text-slate-700">
                                 Name
                             </label>
                             <input
@@ -101,8 +106,8 @@ const Auth = () => {
                                 name="name"
                                 type="text"
                                 required={mode === 'register'}
-                                className={`mt-1 block w-full rounded-md border ${formErrors.name ? 'border-red-500' : 'border-gray-300'
-                                    } p-2`}
+                                className={`mt-1 block w-full rounded-lg border ${formErrors.name ? 'border-red-500' : 'border-slate-300'
+                                    } px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition`}
                                 value={formData.name}
                                 onChange={(e) => {
                                     setFormData({ ...formData, name: e.target.value });
@@ -118,7 +123,7 @@ const Auth = () => {
                     )}
 
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
                             Email address
                         </label>
                         <input
@@ -126,8 +131,8 @@ const Auth = () => {
                             name="email"
                             type="email"
                             required
-                            className={`mt-1 block w-full rounded-md border ${formErrors.email ? 'border-red-500' : 'border-gray-300'
-                                } p-2`}
+                            className={`mt-1 block w-full rounded-lg border ${formErrors.email ? 'border-red-500' : 'border-slate-300'
+                                } px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition`}
                             value={formData.email}
                             onChange={(e) => {
                                 setFormData({ ...formData, email: e.target.value });
@@ -142,7 +147,7 @@ const Auth = () => {
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="password" className="block text-sm font-medium text-slate-700">
                             Password
                         </label>
                         <input
@@ -150,8 +155,8 @@ const Auth = () => {
                             name="password"
                             type="password"
                             required
-                            className={`mt-1 block w-full rounded-md border ${formErrors.password ? 'border-red-500' : 'border-gray-300'
-                                } p-2`}
+                            className={`mt-1 block w-full rounded-lg border ${formErrors.password ? 'border-red-500' : 'border-slate-300'
+                                } px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition`}
                             value={formData.password}
                             onChange={(e) => {
                                 setFormData({ ...formData, password: e.target.value });
@@ -167,7 +172,7 @@ const Auth = () => {
 
                     {mode === 'register' && (
                         <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">
                                 Confirm Password
                             </label>
                             <input
@@ -175,8 +180,8 @@ const Auth = () => {
                                 name="confirmPassword"
                                 type="password"
                                 required={mode === 'register'}
-                                className={`mt-1 block w-full rounded-md border ${formErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                                    } p-2`}
+                                className={`mt-1 block w-full rounded-lg border ${formErrors.confirmPassword ? 'border-red-500' : 'border-slate-300'
+                                    } px-3 py-2.5 focus:ring-2 focus:ring-brand-500 focus:border-transparent transition`}
                                 value={formData.confirmPassword}
                                 onChange={(e) => {
                                     setFormData({ ...formData, confirmPassword: e.target.value });
@@ -194,7 +199,7 @@ const Auth = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="w-full flex justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         {loading ? (mode === 'login' ? 'Signing in...' : 'Signing up...') : mode === 'login' ? 'Sign In' : 'Sign Up'}
                     </button>
@@ -206,7 +211,7 @@ const Auth = () => {
                             <button
                                 type="button"
                                 onClick={() => navigate('/forgot-password')}
-                                className="text-blue-600 hover:text-blue-500"
+                                className="font-medium text-brand-600 hover:text-brand-700"
                             >
                                 Forgot your password?
                             </button>
@@ -215,7 +220,7 @@ const Auth = () => {
                                 <button
                                     type="button"
                                     onClick={() => setMode('register')}
-                                    className="text-blue-600 hover:text-blue-500"
+                                    className="font-medium text-brand-600 hover:text-brand-700"
                                 >
                                     Sign up
                                 </button>
@@ -227,7 +232,7 @@ const Auth = () => {
                             <button
                                 type="button"
                                 onClick={() => setMode('login')}
-                                className="text-blue-600 hover:text-blue-500"
+                                className="font-medium text-brand-600 hover:text-brand-700"
                             >
                                 Sign in
                             </button>

@@ -142,25 +142,6 @@ const BlogGenerator = () => {
         }
     };
 
-    const processingContainerVariants = {
-        hidden: { opacity: 0, scale: 0.8 },
-        visible: {
-            opacity: 1,
-            scale: 1,
-            transition: {
-                duration: 0.5,
-                ease: "easeOut"
-            }
-        },
-        exit: {
-            opacity: 0,
-            scale: 0.8,
-            transition: {
-                duration: 0.3
-            }
-        }
-    };
-
     const handleRefresh = () => {
         setBlogData({
             title: '',
@@ -206,27 +187,27 @@ const BlogGenerator = () => {
             >
                 <div className="relative mb-4">
                     <motion.div
-                        className="w-16 h-16 border-4 border-blue-200 rounded-full"
+                        className="w-16 h-16 border-4 border-brand-200 rounded-full"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     />
                     <motion.div
-                        className="absolute top-0 left-0 w-16 h-16 border-4 border-t-blue-600 rounded-full"
+                        className="absolute top-0 left-0 w-16 h-16 border-4 border-t-brand-600 rounded-full"
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                     />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Generating Blog</h3>
-                <p className="text-gray-600 text-center mb-4">Please wait while we create your content</p>
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <h3 className="text-xl font-semibold text-slate-800 mb-2">Generating Blog</h3>
+                <p className="text-slate-600 text-center mb-4">Please wait while we create your content</p>
+                <div className="w-full bg-slate-200 rounded-full h-2 mb-2">
                     <motion.div
-                        className="h-full bg-blue-600 rounded-full origin-left"
+                        className="h-full bg-brand-600 rounded-full origin-left"
                         style={{ width: `${progress}%` }}
                         transition={{ duration: 0.3 }}
                         layoutId="progressBar"
                     />
                 </div>
-                <span className="text-sm text-gray-500">{progress}% Complete</span>
+                <span className="text-sm text-slate-500">{progress}% Complete</span>
             </motion.div>
         </div>
     );
@@ -239,7 +220,7 @@ const BlogGenerator = () => {
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
             <motion.div
-                className="relative mb-6 rounded-xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 overflow-hidden will-change-transform"
+                className="relative mb-6 rounded-xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 overflow-hidden will-change-transform"
                 variants={headerContainerVariants}
                 initial="hidden"
                 animate="visible"
@@ -248,8 +229,8 @@ const BlogGenerator = () => {
                     backfaceVisibility: 'hidden'
                 }}
             >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full -mr-20 -mt-20 blur-3xl transform-gpu" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-600/20 rounded-full -ml-20 -mb-20 blur-3xl transform-gpu" />
+                <div className="absolute top-0 right-0 w-40 h-40 bg-brand-500/20 rounded-full -mr-20 -mt-20 blur-3xl transform-gpu" />
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-600/20 rounded-full -ml-20 -mb-20 blur-3xl transform-gpu" />
                 <div className="relative p-6 sm:p-8 z-10">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <motion.div
@@ -267,7 +248,7 @@ const BlogGenerator = () => {
                                 <h1 className="text-2xl sm:text-3xl font-bold text-white">
                                     Blog Generator
                                 </h1>
-                                <p className="mt-1 text-sm sm:text-base text-blue-100">
+                                <p className="mt-1 text-sm sm:text-base text-brand-100">
                                     Create engaging content with AI
                                 </p>
                             </div>
@@ -276,8 +257,8 @@ const BlogGenerator = () => {
                             variants={iconVariants}
                             className="hidden sm:flex items-center gap-2"
                         >
-                            <Sparkles className="w-5 h-5 text-blue-100" />
-                            <span className="text-blue-100 text-sm">AI-Powered</span>
+                            <Sparkles className="w-5 h-5 text-brand-100" />
+                            <span className="text-brand-100 text-sm">AI-Powered</span>
                         </motion.div>
                     </div>
                 </div>
@@ -296,41 +277,41 @@ const BlogGenerator = () => {
                 <div className="p-6 sm:p-8">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <motion.div className="space-y-4">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-slate-700">
                                 Blog Title
                             </label>
                             <input
                                 type="text"
                                 value={blogData.title}
                                 onChange={(e) => setBlogData({ ...blogData, title: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition duration-200"
                                 placeholder="Enter your blog title"
                                 required
                             />
                         </motion.div>
 
                         <motion.div className="space-y-4">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-slate-700">
                                 Keywords
                             </label>
                             <input
                                 type="text"
                                 value={blogData.keywords}
                                 onChange={(e) => setBlogData({ ...blogData, keywords: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition duration-200"
                                 placeholder="technology, innovation, future"
                                 required
                             />
                         </motion.div>
 
                         <motion.div className="space-y-4">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-slate-700">
                                 Tone
                             </label>
                             <select
                                 value={blogData.tone}
                                 onChange={(e) => setBlogData({ ...blogData, tone: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                                className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition duration-200"
                             >
                                 <option value="informative">Informative</option>
                                 <option value="professional">Professional</option>
@@ -345,7 +326,7 @@ const BlogGenerator = () => {
                                 type="submit"
                                 disabled={loading}
                                 className={`flex-1 px-6 py-3 rounded-lg font-medium flex items-center justify-center
-                                    ${loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} text-white
+                                    ${loading ? 'bg-brand-400' : 'bg-brand-600 hover:bg-brand-700'} text-white
                                     transition duration-200`}
                                 whileHover={!loading ? { scale: 1.02 } : {}}
                                 whileTap={!loading ? { scale: 0.98 } : {}}
@@ -363,7 +344,7 @@ const BlogGenerator = () => {
                             <motion.button
                                 type="button"
                                 onClick={handleRefresh}
-                                className="px-6 py-3 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100
+                                className="px-6 py-3 bg-slate-50 text-slate-700 rounded-lg hover:bg-slate-100
                                     flex items-center justify-center gap-2 transition duration-200"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -398,7 +379,7 @@ const BlogGenerator = () => {
                                         type="button"
                                         onClick={handleAnalyze}
                                         className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
-                                            bg-purple-600 text-white hover:bg-purple-700"
+                                            bg-accent-600 text-white hover:bg-accent-700"
                                         whileHover={{ scale: 1.03 }}
                                         whileTap={{ scale: 0.97 }}
                                     >
@@ -411,7 +392,7 @@ const BlogGenerator = () => {
                                         className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition duration-200
                                             ${copied
                                                 ? 'bg-green-50 text-green-700 border border-green-200'
-                                                : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                                : 'bg-brand-600 text-white hover:bg-brand-700'}`}
                                         whileHover={{ scale: 1.03 }}
                                         whileTap={{ scale: 0.97 }}
                                     >
@@ -430,7 +411,7 @@ const BlogGenerator = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                            <div className="flex items-center gap-4 text-sm text-slate-600 mb-4">
                                 {readTime && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
@@ -461,13 +442,13 @@ const BlogGenerator = () => {
 
                                 {metaDescription && (
                                     <motion.div
-                                        className="mt-8 rounded-lg border border-blue-100 bg-blue-50/60 p-4"
+                                        className="mt-8 rounded-lg border border-brand-100 bg-brand-50/60 p-4"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.5 }}
                                     >
-                                        <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700 mb-1">Meta Description</h3>
-                                        <p className="text-gray-700">{metaDescription}</p>
+                                        <h3 className="text-sm font-semibold uppercase tracking-wide text-brand-700 mb-1">Meta Description</h3>
+                                        <p className="text-slate-700">{metaDescription}</p>
                                     </motion.div>
                                 )}
                             </motion.div>
