@@ -189,7 +189,7 @@ const BlogGenerator = () => {
     );
 
     const renderMarkdown = (content) => {
-        if (!content) return '';
+        if (!content) return { __html: '' };
         return { __html: marked(content) };
     };
 
